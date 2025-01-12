@@ -15,6 +15,9 @@ logger = logging.getLogger(__name__)
 ''' These setting only good for picar setup, other hardware may require
     different settings. These setup may be moved to actuators controller later
 '''
+# motorPinRPWM = 5
+# motorPinLPWM = 6
+# servo_pin = 23
 FRONT_WHEEL_CHANNEL = 0             # Front wheel pin channel
 LEFT_REAR_WHEEL_CHANNEL = 17        # Rear wheel pin channel
 RIGHT_REAR_WHEEL_CHANNEL = 27       # Rear wheel pin channel
