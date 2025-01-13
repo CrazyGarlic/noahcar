@@ -6,6 +6,7 @@ from io import BytesIO
 from autorc.nodes import Node
 
 
+
 class PilotBase(Node):
 
     def __init__(self, context, camera_feed='cam/image-np',
@@ -37,7 +38,7 @@ class KerasSteeringPilot(PilotBase):
                  input_shape=(160, 120, 3), preprocess_input=None,
                  prewarm_model=False, camera_feed_jpeg=False, **kwargs):
         super(KerasSteeringPilot, self).__init__(context, **kwargs)
-        from keras.preprocessing.image import load_img, img_to_array
+        from tensorflow.keras.utils import load_img, img_to_array
         self.model = None
         self.input_shape = input_shape
         self.model_path = model_path
