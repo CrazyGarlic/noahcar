@@ -1,7 +1,7 @@
 {
   "Example": "This is an example configuration file",
-  "PWM_FREQUENCY": 1000,
-  "FRONT_WHEEL_CHANNEL" : 23,
+  "PWM_FREQUENCY": 50,
+  "FRONT_WHEEL_CHANNEL" : 0,
   "LEFT_REAR_WHEEL_CHANNEL"  : 6,
   "RIGHT_REAR_WHEEL_CHANNEL" : 5
 }
