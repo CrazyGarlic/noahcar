@@ -304,7 +304,7 @@ class WebController(AsyncNode):
 
 if __name__ == '__main__':
     from multiprocessing import Process, Manager, Event
-    from autorc.nodes.camera import CVWebCam, PGWebCam, PiCamera
+    from autorc.nodes.camera import CVWebCam, PGWebCam, PiCamera1
     # from autorc.nodes.engine import Engine
     import time
     with Manager() as manager:
@@ -316,7 +316,7 @@ if __name__ == '__main__':
         p_wc.daemon = True
         p_wc.start()
 
-        p_cam = Process(target=PiCamera.start,
+        p_cam = Process(target=PiCamera1.start,
                         args=(context, stop_event, ))
         p_cam.daemon = True
         p_cam.start()
