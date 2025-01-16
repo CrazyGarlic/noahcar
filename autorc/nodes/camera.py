@@ -1,8 +1,11 @@
 from io import BytesIO
 import time
 from autorc.nodes import Node
-import numpy as np
 from skimage.transform import resize as skresize
+from picamera2 import Picamera2
+import cv2
+import numpy as np
+import base64
 
 '''
     Supported resolution
@@ -14,7 +17,6 @@ from skimage.transform import resize as skresize
     1024.0 x 768.0
     1280.0 x 1024.0
 '''
-
 
 class BaseWebCam(Node):
     '''
@@ -68,6 +70,65 @@ class BaseWebCam(Node):
             if not self.disable_numpy_stream:
                 np_array = self.get_np_array(frame)
             return jpeg, np_array
+
+class PiCamera(BaseWebCam):
+    '''Raspberry Pi camera interface using Picamera2'''
+    
+    def __init__(self, context, size=(160, 120), framerate=20,
+                 jpeg_quality=90, use_rgb=True, **kwargs):
+        super(PiCamera, self).__init__(
+            context, capture_size=size, jpeg_size=size,
+            framerate=framerate, **kwargs)
+        self.use_rgb = use_rgb
+        self.jpeg_quality = jpeg_quality
+        self.camera = None
+        self.running = False
+
+    def start_up(self):
+        """Initialize picamera2"""
+        self.camera = Picamera2()
+        # Configure camera with capture size
+        config = self.camera.create_preview_configuration(
+            main={"size": self.capture_size})
+        self.camera.configure(config)
+        # Start camera
+        self.camera.start()
+        self.running = True
+        self.encode_param = (int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality)
+        time.sleep(1)  # Camera warm up
+
+    def get_frame(self):
+        """Get a frame from camera"""
+        if not self.running:
+            return None
+        return self.camera.capture_array()
+
+    def get_jpeg(self, frame):
+        """Convert frame to JPEG"""
+        if frame is not None:
+            if (self.jpeg_size is not None and
+                    self.jpeg_size != self.capture_size):
+                frame = cv2.resize(frame, self.jpeg_size,
+                                 cv2.INTER_LINEAR)
+            ret, jpeg = cv2.imencode('.jpg', frame, self.encode_param)
+            return jpeg.tobytes()
+
+    def get_np_array(self, frame):
+        """Get numpy array for processing"""
+        new_frame = frame
+        if self.numpy_size:
+            new_frame = cv2.resize(
+                frame, (self.numpy_size[1], self.numpy_size[0]),
+                cv2.INTER_LINEAR)
+        if self.use_rgb:
+            new_frame = cv2.cvtColor(new_frame, cv2.COLOR_BGR2RGB)
+        return new_frame
+
+    def shutdown(self):
+        """Clean up camera resources"""
+        if self.camera:
+            self.camera.stop()
+            self.running = False
 
 
 class CVWebCam(BaseWebCam):
